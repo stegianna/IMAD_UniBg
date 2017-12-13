@@ -39,7 +39,7 @@ meas = struct('t', zeros(1, 0),...
     'orient', zeros(4, 0));
 
 % Initial time
-t0=[];
+t0 = [];
 
 while server.status()  % Repeat while data is available
   % Get the next measurement set, assume all measurements
@@ -74,9 +74,9 @@ while server.status()  % Repeat while data is available
   
   % store measurements
   meas.t(end+1) = t - t0;
-  meas.acc(:,end+1)=data(1,2:4)';
-  meas.gyr(:, end+1) = data(1,5:7)';
-  meas.mag(:, end+1) = data(1,8:10)';
+  meas.acc(:, end+1) = data(1, 2:4)';
+  meas.gyr(:, end+1) = data(1, 5:7)';
+  meas.mag(:, end+1) = data(1, 8:10)';
   
 end
 
@@ -95,24 +95,24 @@ load('data_still.mat')
 % ========================
 figure
 % It should be 0 m/s^2 if the surface is perfectly plane
-subplot 311; plot(meas.t,meas.acc(1,:)); 
+subplot 311; plot(meas.t, meas.acc(1,:), 'b', 'linewidth', 2); grid on; xlim([0, max(meas.t)])
 % It should be 0 m/s^2 if the surface is perfectly plane
-subplot 312; plot(meas.t,meas.acc(2,:)); ylabel('Acceleration [m/s^2]');
+subplot 312; plot(meas.t, meas.acc(2,:), 'b', 'linewidth', 2); ylabel('Acceleration [m/s^2]'); grid on; xlim([0, max(meas.t)])
 % It should be 9.822 m/s^2 if the surface is perfectly plane
-subplot 313; plot(meas.t,meas.acc(3,:));  
-xlabel('Time [s]'); 
+subplot 313; plot(meas.t, meas.acc(3,:), 'b', 'linewidth', 2); 
+xlabel('Time [s]'); grid on; xlim([0, max(meas.t)])
 
 % From the plot it can be seen that there is an initial transient (probably
 % due to the finger which presses the button to start streaming, or an 
 % internal filter output): Let's take it out starting from 3 seconds up to 
 % 36 seconds (do not keep the final piece in which pressing the stop button
 % of the app induces small accelerations)
-acc_x=meas.acc(1, find(meas.t>3,1):find(meas.t>36,1) );
-acc_y=meas.acc(2, find(meas.t>3,1):find(meas.t>36,1) );
-acc_z=meas.acc(3, find(meas.t>3,1):find(meas.t>36,1) );
+acc_x = meas.acc(1, find(meas.t>3, 1):find(meas.t>36, 1) );
+acc_y = meas.acc(2, find(meas.t>3, 1):find(meas.t>36, 1) );
+acc_z = meas.acc(3, find(meas.t>3, 1):find(meas.t>36, 1) );
 
 % Create a vector of cleaned data
-meas.acc_cleaned=[acc_x;acc_y;acc_z]; clearvars acc_x acc_y acc_z
+meas.acc_cleaned = [acc_x; acc_y; acc_z]; clearvars acc_x acc_y acc_z
 
 % % Example to understand how to exclude the NaN numbers (columns: time
 % % stamps, rows: sensor measurements)
@@ -127,7 +127,7 @@ acc_means = mean(meas.acc_cleaned(:, ~any(isnan(meas.acc_cleaned), 1)), 2);
 % The difference between the mean value estimate and the true value is the
 % sensor bias (supposing measurements taken with the phone on a plane
 % table)
-acc_biases = acc_means-[0; 0; 9.822];
+acc_biases = acc_means - [0; 0; 9.81];
 
 % From the histogram it is possible to have an idea of the noise which
 % affects the measurements
@@ -149,26 +149,27 @@ acc_vars=[ var(meas.acc_cleaned(1, ~any(isnan(meas.acc_cleaned), 1) ));
 
 figure
 % It should be 0 rad/s if the phone is still
-subplot 311; plot(meas.t,meas.gyr(1,:)); 
+subplot 311; plot(meas.t, meas.gyr(1,:), 'b', 'linewidth', 2); grid on; xlim([0, max(meas.t)])
 % It should be 0 rad/s if the phone is still
-subplot 312; plot(meas.t,meas.gyr(2,:)); ylabel('Speed [rad/s]');
+subplot 312; plot(meas.t, meas.gyr(2,:), 'b', 'linewidth', 2); ylabel('Speed [rad/s]'); grid on; xlim([0, max(meas.t)])
 % It should be 0 rad/s if the phone is still
-subplot 313; plot(meas.t,meas.gyr(3,:)); 
-xlabel('Time [s]'); 
+subplot 313; plot(meas.t, meas.gyr(3,:), 'b', 'linewidth', 2); 
+xlabel('Time [s]'); grid on; xlim([0, max(meas.t)])
 
-gyr_raw_x=meas.gyr(1, find(meas.t>3,1):find(meas.t>36,1) );
-gyr_raw_y=meas.gyr(2, find(meas.t>3,1):find(meas.t>36,1) );
-gyr_raw_z=meas.gyr(3, find(meas.t>3,1):find(meas.t>36,1) );
-meas.gyr_cleaned=[gyr_raw_x;gyr_raw_y;gyr_raw_z]; clearvars gyr_raw_x gyr_raw_y gyr_raw_z
+gyr_raw_x = meas.gyr(1, find(meas.t>3, 1):find(meas.t>36, 1) );
+gyr_raw_y = meas.gyr(2, find(meas.t>3, 1):find(meas.t>36, 1) );
+gyr_raw_z = meas.gyr(3, find(meas.t>3, 1):find(meas.t>36, 1) );
+meas.gyr_cleaned = [gyr_raw_x; gyr_raw_y; gyr_raw_z]; clearvars gyr_raw_x gyr_raw_y gyr_raw_z
 
-gyr_means=mean(meas.gyr_cleaned(1:3, ~any(isnan(meas.gyr_cleaned), 1)), 2);
-gyr_biases=gyr_means-[0; 0; 0];
+gyr_means = mean(meas.gyr_cleaned(1:3, ~any(isnan(meas.gyr_cleaned), 1)), 2);
+gyr_biases = gyr_means-[0; 0; 0];
 
 
 figure
-subplot 311; hist(meas.gyr_cleaned(1,:)); 
-subplot 312; hist(meas.gyr_cleaned(2,:)); 
-subplot 313; hist(meas.gyr_cleaned(3,:)); 
+subplot 311; hist(meas.gyr_cleaned(1, :)); 
+subplot 312; hist(meas.gyr_cleaned(2, :)); 
+subplot 313; hist(meas.gyr_cleaned(3, :)); 
+
 gyr_vars=[ var(meas.gyr_cleaned(1, ~any(isnan(meas.gyr_cleaned), 1) ));
            var(meas.gyr_cleaned(2, ~any(isnan(meas.gyr_cleaned), 1) ));
            var(meas.gyr_cleaned(3, ~any(isnan(meas.gyr_cleaned), 1) ))];
@@ -183,16 +184,17 @@ gyr_vars=[ var(meas.gyr_cleaned(1, ~any(isnan(meas.gyr_cleaned), 1) ));
 % It is assumed that the magnetometer is already calibrated
 
 figure
-subplot 311; plot(meas.t,meas.mag(1,:));
-subplot 312; plot(meas.t,meas.mag(2,:)); ylabel('Magnetic field [ \muT ]');
-subplot 313; plot(meas.t,meas.mag(3,:)); 
+subplot 311; plot(meas.t,meas.mag(1, :), 'b', 'linewidth', 2); ; grid on; xlim([0, max(meas.t)])
+subplot 312; plot(meas.t,meas.mag(2, :), 'b', 'linewidth', 2); ylabel('Magnetic field [ \muT ]'); ; grid on; xlim([0, max(meas.t)])
+subplot 313; plot(meas.t,meas.mag(3, :), 'b', 'linewidth', 2); grid on; xlim([0, max(meas.t)])
 xlabel('Time [s]');
 
 
 figure
-subplot 311; hist(meas.mag(1,:)); 
-subplot 312; hist(meas.mag(2,:)); 
-subplot 313; hist(meas.mag(3,:)); 
+subplot 311; hist(meas.mag(1, :)); 
+subplot 312; hist(meas.mag(2, :)); 
+subplot 313; hist(meas.mag(3, :)); 
+
 mag_vars=[ var(meas.mag(1, ~any(isnan(meas.mag), 1) ));
            var(meas.mag(2, ~any(isnan(meas.mag), 1) ));
            var(meas.mag(3, ~any(isnan(meas.mag), 1) ))];

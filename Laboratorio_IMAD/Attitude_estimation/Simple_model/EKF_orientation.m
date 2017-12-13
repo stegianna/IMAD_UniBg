@@ -32,7 +32,7 @@ nx = 4; ny=6;
 % Process noise matrix
 V1 = eye(nx)*1e-6;
 % Output matrix
-V2 = eye(ny).*repmat( [ calAcc.R; calMag.R ] ,1,ny);
+V2 = eye(ny).*repmat( [ calAcc.R; calMag.R ] , 1, ny);
 
 
 % Filter state initialization
@@ -51,9 +51,11 @@ acceleration = zeros(3,1);
 magnetic = zeros(3,1);
 
 % Acceleration reference
-g0 = [0 ; 0 ; 9.822];
+g0 = [0 ; 0 ; 9.81];
 
-mxy = sqrt( (-14.2)^2 + (-19.9)^2); mz=-33.9;
+% Magnetic reference /adjust this based on your geographical location, by
+% placing the pohone lying horizontally on the table, face up)
+mxy = sqrt( (-14.2)^2 + (-19.9)^2); mz = -33.9;
 m0 = [0 ; mxy ; mz];
 
 
@@ -114,17 +116,15 @@ while server.status()  % Repeat while data is available
     % Acc measurements are available.
     if ~any(isnan(acc))
         % Do not consider the contribute of external accelerations
-        if(norm(acc)<=(9.822+0.5) && norm(acc)>=(9.822-0.5))
-            acceleration(1:2) = acc(1:2);
-            acceleration(3) = acc(3);
+        if(norm(acc)<=(9.81 + 0.5) && norm(acc)>=(9.81 - 0.5))
+            acceleration = acc;
         end
     end
     
     gyr = data(1, 5:7)' - calGyr.b;
     % Gyro measurements are available.
     if ~any(isnan(gyr))
-        omega(1:2) = gyr (1:2);
-        omega(3) = gyr(3);
+        omega = gyr;
     end
     
     mag = data(1, 8:10)';
@@ -132,8 +132,7 @@ while server.status()  % Repeat while data is available
     if ~any(isnan(mag))
         % Do not consider disturbances on magnetic field
         if(norm(mag)<=70 && norm(mag)>=10)
-            magnetic(1:2) = mag(1:2);
-            magnetic(3) = mag(3);
+            magnetic = mag;
         end
     end
     
@@ -155,43 +154,43 @@ while server.status()  % Repeat while data is available
     
     % Output matrix H linearization ==> H(k) = H( x(k|k-1) )
     q0 = x_pred(1); q1 = x_pred(2); q2 = x_pred(3); q3 = x_pred(4);
-    H = [ 9.822*(-2*q2)         9.822*2*q3         9.822*(-2*q0)           9.822*2*q1        ;
-          9.822*2*q1            9.822*2*q0         9.822*2*q3              9.822*2*q2        ;
-          9.822*4*q0            0                  0                       9.822*4*q3        ;
+    H = [ 9.81*(-2*q2)          9.81*2*q3          9.81*(-2*q0)            9.81*2*q1         ;
+          9.81*2*q1             9.81*2*q0          9.81*2*q3               9.81*2*q2         ;
+          9.81*4*q0             0                  0                       9.81*4*q3         ;
           mxy*2*q3+mz*(-2*q2)   mxy*2*q2+mz*2*q3   mxy*2*q1+mz*(-2*q0)     mxy*2*q0+mz*2*q1  ;
           mxy*4*q0+mz*2*q1      mz*2*q0            mxy*4*q2+mz*2*q3        mz*2*q2           ;
           mxy*(-2*q1)+mz*4*q0   mxy*(-2*q0)        mxy*2*q3                mxy*2*q2+mz*4*q3 ];
     
     
-    % Kalman Gain ==> K0(k) = P(k|k-1)H(k) / H(k)P(k|k-1)H(k)' + V2
-    K0 = (P*H')/(H*P*H'+V2);
+    % Kalman Gain ==> K0(k) = P(k|k-1)H(k) / (H(k)P(k|k-1)H(k)' + V2)
+    K0 = (P*H')/(H*P*H' + V2);
     
-    % Innovation ==> e(k) = y(k)-y_hat( x(k|k-1) )
-    e = y-y_hat;
+    % Innovation ==> e(k) = y(k) - y_hat( x(k|k-1) )
+    e = y - y_hat;
     % State update, filtering ==> x(k|k) = x(k|k-1) + K0(k)e(k)
-    x = x_pred+K0*e;
+    x = x_pred + K0*e;
     % Quaternion normalization
     x = quatnormalize_2(x')';
     
-    % Covariance matrix update ==> P(k|k) = [I-K0(k)H(k)]*P(k|k-1)
-    P = (eye(nx)-K0*H)*P;
+    % Covariance matrix update ==> P(k|k) = [I - K0(k)H(k)] * P(k|k-1)
+    P = (eye(nx) - K0*H) * P;
     
     
     % ===================================  PREDICTION STEP
     
     % State prediction with non-linear system dynamics
-    % x(k+1|k) = f(x(k|k),u(k))
-    x_pred = (eye(4)+1/2*Somega(omega)*Ts)*x(1:4);
+    % x(k+1|k) = f(x(k|k), u(k))
+    x_pred = (eye(4) + 1/2*Somega(omega)*Ts) * x(1:4);
     % Quaternion normalization
     x_pred = quatnormalize_2(x_pred')';
     
     % Dynamic matrix F linearization
     wx = omega(1); wy = omega(2); wz = omega(3);
     % F(k) evaluated in x(k|k) and u(k)
-    F = [     1       -1/2*Ts*wx  -1/2*Ts*wy   -1/2*Ts*wz  ;
-          1/2*Ts*wx      1        1/2*Ts*wz    -1/2*Ts*wy  ;
-          1/2*Ts*wy  -1/2*Ts*wz       1        1/2*Ts*wx   ;
-          1/2*Ts*wz  1/2*Ts*wy    -1/2*Ts*wx         1     ];
+    F = [     1       -1/2*Ts*wx    -1/2*Ts*wy    -1/2*Ts*wz   ;
+          1/2*Ts*wx      1           1/2*Ts*wz    -1/2*Ts*wy   ;
+          1/2*Ts*wy   -1/2*Ts*wz        1          1/2*Ts*wx   ;
+          1/2*Ts*wz    1/2*Ts*wy    -1/2*Ts*wx         1      ];
     
     % Covariance prediction
     % P(k+1|k) = F(k)*P(k|k)*F(k)' + V1

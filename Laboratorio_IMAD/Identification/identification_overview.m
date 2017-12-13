@@ -27,7 +27,7 @@ G = tf([1 0 0 0], [1 -a(1) -a(2) -a(3)] ,'Ts', Ts, 'variable', 'z^-1');
 G
 
 % Abs value of the poles of the transfer function
-abs(pole(G))
+abs( pole(G) )
 
 % Add stagionality to the process
 s = 3 * cos(2 * pi/40*[1:N]);
@@ -125,8 +125,10 @@ model = ar( data_ident.OutputData, 3); % uso un modello AR(3)
 display(model)
 G
 
+
 % Prediction on identification data
 y_hat = predict(model, data_valid, 1, 'estimate');
+
 
 figure
 plot(y_hat.OutputData, 'g', 'linewidth', 4), hold on;
@@ -145,7 +147,7 @@ display(gamma_hat)
 % Spectral density anlytical way
 figure
 num_frequencies = 100;  % points onto which to evaluate the frequency response
-[H, W] = freqz(cell2mat(G.Numerator), cell2mat(G.Denominator), num_frequencies);
+[H, W] = freqz( cell2mat(G.Numerator), cell2mat(G.Denominator), num_frequencies);
 plot(W, abs(H).^2, 'b*', 'linewidth', 2) %modulo della risposta in frequenza calcolato al quadrato
 hold on;
 
@@ -215,16 +217,16 @@ m2 = ar(data.OutputData, 3, 'ls'); % AR(3) model
 % armax(Z, [na nb nc nk])
 m3 = armax(data, [0 0 3 1]); % MA(3) model
 m4 = armax(data, [1 0 2 1]); % ARMA(1, 2) model
-m5 = ar(data.OutputData, 4, 'ls'); % AR(5) model
-m6 = ar(data.OutputData, 5, 'ls'); % AR(6) model
+m5 = ar(data.OutputData, 4, 'ls'); % AR(4) model
+m6 = ar(data.OutputData, 5, 'ls'); % AR(5) model
 
 % Compute the prediction error: if it is a white noise, we have chosen the
 % rigth model
 figure; resid(m1, data); grid on; set(findall(gcf,'type','line'), 'linewidth', 2)
 
-figure; resid(m2, data); grid on; set(findall(gcf,'type','line'), 'linewidth', 2)
+figure; resid(m2, data); grid on; set(findall(gcf,'type','line'), 'linewidth', 2)% resid OK! 
 
-figure; resid(m3, data); grid on; % resid OK! 
+figure; resid(m3, data); grid on; 
 set(findall(gcf,'type','line'), 'linewidth', 2)
 
 figure; resid(m4, data); grid on; set(findall(gcf,'type','line'), 'linewidth', 2)
