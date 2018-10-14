@@ -1,0 +1,9 @@
+conda create -n tensorflow3 python=3.5 anaconda
+
+activate tensorflow3
+
+pip install --upgrade tensorflow
+
+conda uninstall IPython -y
+
+conda install nb_conda_kernels -y
