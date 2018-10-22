@@ -1,5 +1,7 @@
 Download Anaconda Python distribution: https://www.anaconda.com/download/#windows
 
+These examples use Python 3.5
+
 Open anaconda terminal
 
 conda create -n tensorflow3 python=3.5 anaconda
