@@ -15,7 +15,7 @@ N = 11000; % num data
 e = randn(1, N) + me; % generate WN input
 y = zeros(1, length(e)); % generate output
 
-Ts = 1; % sample time [s]
+Ts = 0.02; % sample time [s]
 
 for t = 4 : length(e)
     
@@ -121,7 +121,7 @@ data_valid = iddata(y_tilde_s(N_valid + 1:end)', e_tilde(N_valid +1 :end)', Ts);
 
 %% Compute the predictor
 
-model = ar( data_ident.OutputData, 3); % uso un modello AR(3)
+model = ar( data_ident.OutputData, 3, 'Ts', Ts); % uso un modello AR(3)
 display(model)
 G
 
@@ -144,7 +144,7 @@ gamma_hat = covf(data , 1); % sample variance (tau = 0)
 display(gamma_hat)
 
 
-% Spectral density anlytical way
+% Spectral density analytical way
 figure
 num_frequencies = 100;  % points onto which to evaluate the frequency response
 [H, W] = freqz( cell2mat(G.Numerator), cell2mat(G.Denominator), num_frequencies);
@@ -212,13 +212,13 @@ set(findall(gcf,'type','line'), 'linewidth', 2)
 
 %% Parametric estimation
 
-m1 = ar(data.OutputData, 1, 'ls'); % AR(1) model
-m2 = ar(data.OutputData, 3, 'ls'); % AR(3) model
+m1 = ar(data.OutputData, 1, 'ls', 'Ts', Ts); % AR(1) model
+m2 = ar(data.OutputData, 3, 'ls', 'Ts', Ts); % AR(3) model
 % armax(Z, [na nb nc nk])
-m3 = armax(data, [0 0 3 1]); % MA(3) model
-m4 = armax(data, [1 0 2 1]); % ARMA(1, 2) model
-m5 = ar(data.OutputData, 4, 'ls'); % AR(4) model
-m6 = ar(data.OutputData, 5, 'ls'); % AR(5) model
+m3 = armax(data, [0 0 3 1], 'Ts', Ts); % MA(3) model
+m4 = armax(data, [1 0 2 1], 'Ts', Ts); % ARMA(1, 2) model
+m5 = ar(data.OutputData, 4, 'ls', 'Ts', Ts); % AR(4) model
+m6 = ar(data.OutputData, 5, 'ls', 'Ts', Ts); % AR(5) model
 
 % Compute the prediction error: if it is a white noise, we have chosen the
 % rigth model
@@ -270,7 +270,7 @@ ylim([min(MDLs), max(MDLs)]); xlabel('Model order'); ylabel('MDL(n)'); grid on; 
 
 %% Compute final model and validate on validation data
 
-final_model = ar(data_ident.OutputData, best_model_MDL, 'ls');
+final_model = ar(data_ident.OutputData, best_model_MDL, 'ls', 'Ts', Ts);
 
 figure; resid(final_model, data_valid); set(findall(gcf,'type','line'), 'linewidth', 2);
 figure; compare(final_model, data_valid, 1); % 1-step prediction comparison
