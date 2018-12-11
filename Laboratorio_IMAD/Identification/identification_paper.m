@@ -25,10 +25,10 @@ Ts = 0.06; % 60ms Sampling time
 % signal, in the reality is has a band-pass spectrum
 
 L = 2047; % Period of the PRBS
-model = 1; % number of periods
-N = L*model;
+P = 1; % number of periods
+N = L*P;
 
-prbs = idinput([L 1 model], 'prbs', [], [-0.5, 0.5]); % generate prbs input 
+prbs = idinput([L 1 P], 'prbs', [], [-0.5, 0.5]); % generate prbs input 
 figure(); plot(prbs, 'bo-'); xlim([0, round(L/10)]); ylim([-0.6, 0.6]); grid on;
 yticks([-0.5, 0.5]); xlabel('Samples [-]'); ylabel('Amplitude');
 
@@ -67,7 +67,6 @@ set(findall(gcf,'type','line'), 'linewidth', 2)
 max_ar_order = 10;
 J = zeros(1, max_ar_order); % cost functions vector
 for a = 1:max_ar_order
-    
     fprintf('Identifying model %i', a); fprintf('\n');
     orders = [a a 1]; % use the same parameter for autoregressive and exogenous part
     model = arx(data, orders);
@@ -129,7 +128,7 @@ present(armax6661) % show advanced properties of the estimation
 
 % Look at the z^-1 term of the B(z) polynomial -6.916e-05 (+/- 9.485e-05)
 % z^-1. It is very small compared to its standard deviation. 
-% That standard deviatio is high enough to bring the coefficients to zero. 
+% That standard deviation is high enough to bring the coefficients to zero. 
 % It is better to start from z^-2, which standard deviation is not high 
 % enough to bring it to zero ( 0.001316 (+/- 0.0001397) z^-2 )
 

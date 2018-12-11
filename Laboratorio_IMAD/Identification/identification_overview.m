@@ -183,7 +183,6 @@ legend('Raw estimation', 'Regularized estimation', 'True spectrum');
 xlim([-pi, pi]);
 
 
-
 % Estimation of the spectrum with matlab functions
 figure
 % Spectral Density (PSD) estimate via periodogram method
@@ -196,7 +195,6 @@ plot(w_hat_welch, Pyy, 'g', 'linewidth', 4); grid on; xlabel('\omega [rad/sample
 plot(w, Gy, 'k--' ,'linewidth', 3); grid on; xlim([-pi, pi]);
 legend('Raw estimation', 'Regularized estimation', 'True spectrum'); 
 xlim([-pi, pi]);
-
 
 
 %% Estimate frequency response function from data
@@ -278,8 +276,11 @@ set(findall(gcf,'type','line'), 'linewidth', 2); grid on;
 
 y_hat = predict(final_model, data_valid, 1)'; % 1-step prediction
 RSS = 1/length(data_valid.OutputData) * sum( (data_valid.OutputData - y_hat.OutputData).^2 );
-RSS % the variance of the error
+RSS % the variance of the prediction error
 
+ESR = RSS / var(data_valid.OutputData); % error to signal ration
+ESR
+fprintf('Reduced the uncertainty of %.2f', (1 - ESR) * 100); fprintf('\n');
 
 %% Final time series 1-step prediction
 

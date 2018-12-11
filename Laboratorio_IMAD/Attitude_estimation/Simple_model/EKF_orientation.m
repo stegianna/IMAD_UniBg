@@ -54,7 +54,7 @@ magnetic = zeros(3,1);
 g0 = [0 ; 0 ; 9.81];
 
 % Magnetic reference /adjust this based on your geographical location, by
-% placing the pohone lying horizontally on the table, face up)
+% placing the phone lying horizontally on the table, face up)
 mxy = sqrt( (-14.2)^2 + (-19.9)^2); mz = -33.9;
 m0 = [0 ; mxy ; mz];
 
