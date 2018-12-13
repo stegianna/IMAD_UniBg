@@ -278,7 +278,7 @@ y_hat = predict(final_model, data_valid, 1)'; % 1-step prediction
 RSS = 1/length(data_valid.OutputData) * sum( (data_valid.OutputData - y_hat.OutputData).^2 );
 RSS % the variance of the prediction error
 
-ESR = RSS / var(data_valid.OutputData); % error to signal ration
+ESR = RSS / var(data_valid.OutputData); % error to signal ratio
 ESR
 fprintf('Reduced the uncertainty of %.2f', (1 - ESR) * 100); fprintf('\n');
 
